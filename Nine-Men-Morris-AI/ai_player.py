@@ -403,20 +403,21 @@ class AIPlayer(Player):
             board_obj.set_board_state(old_state)
 
         # Try blocking opponent mill
+        # Find opponent threatening positions
+        threatening_positions = []
+        for opp_pos in range(1, 25):
+            if board_obj.board[opp_pos - 1] in {"W", "B"}: # not empty
+                continue
+            board_obj.board[opp_pos - 1] = "W" # temporarily place opponent piece
+            if Mill_Logic.can_form_mill("W", board_obj, opp_pos): # check mill formation
+                threatening_positions.append(opp_pos)
+            board_obj.board[opp_pos - 1] = opp_pos # restore (mill is formed or not)
+
         for start_pos, end_pos in ai_moves:
-            old_state = self.simulate_move_phase_2_3(board_obj, start_pos, end_pos, player_num)
-            opponent_can_mill = False
-            for opp_pos in range(1, 25):
-                if board_obj.board[opp_pos - 1] != "W":
-                    continue
-                if Mill_Logic.can_form_mill("W", board_obj, opp_pos):
-                    opponent_can_mill = True
-                    break
-            if opponent_can_mill:
-                board_obj.set_board_state(old_state)
+            if end_pos in threatening_positions:
                 print("AI is blocking opponent mill!")
-                return start_pos, end_pos
-            board_obj.set_board_state(old_state)
+                return start_pos, end_pos        
+        
 
         # Fallback to Minimax evaluation
         for start_pos, end_pos in ai_moves:

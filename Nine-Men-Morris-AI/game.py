@@ -80,6 +80,7 @@ class Game:
         - Checks for mill formation and captures.
         - Ends when both players have placed all 9 pieces.
         """
+        print("----------Phase 1--------------")
         while True:
             if self.current_player.player_num == 1:
                 pos_num = self.current_player.get_input()
@@ -146,7 +147,10 @@ class Game:
                 print("Draw — 50 moves without a mill or capture.")
                 exit()
             if self.player1.pieces_placed == 9 and self.player2.pieces_placed == 9: # phase 1 ends when both players have 9 pieces on board
-                print("Time to move to phase 2.")
+                print("----------Phase 2--------------")
+                time.sleep(0.3)
+                os.system("cls")
+                self.board_obj.disp_board()
                 break 
     
     def phase_2_3(self):
@@ -157,6 +161,7 @@ class Game:
         - Loops until game ends.
         """
         while True:
+
             if self.current_player == self.player1: # Human
                 if self.current_player.pieces_on_board == 3:
                     print("You have entered flying mode! You can move to any empty position.")
