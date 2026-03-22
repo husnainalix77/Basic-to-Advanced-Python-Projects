@@ -90,6 +90,7 @@ class Game:
             else: # AI
                 pieces_placed = self.player1.pieces_placed + self.player2.pieces_placed
                 pos_num = self.current_player.get_best_pos(self.board_obj, 2, pieces_placed) # AI Turn
+                
                 print(f"AI has chosen position {pos_num}.")    
             self.board_obj.fill_position(pos_num, self.current_player.player_num)
             self.current_player.increment_placed() # incrementing pieces for current player on board after valid move
@@ -202,8 +203,13 @@ class Game:
                 if self.current_player.pieces_on_board == 3:
                     print("AI has entered flying mode!")
                 start_pos, end_pos = self.current_player.get_best_pos_2_3(self.board_obj, 2, pieces_placed)
+                
+                if start_pos is None:
+                    print("AI has no valid moves. Player 1 wins!")
+                    exit()
+                    
                 print(f"AI moved from {start_pos} to {end_pos}.") 
-                time.sleep(0.4)      
+                time.sleep(0.3)      
             # If current player has exactly 3 pieces — they are in Phase 3 (flying), so the entire
             # if block is skipped and they can move to any empty position without adjacency restriction.            
             self.board_obj.board[start_pos - 1] = start_pos # Clear position
