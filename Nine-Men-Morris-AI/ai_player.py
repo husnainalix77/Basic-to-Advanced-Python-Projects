@@ -203,7 +203,7 @@ class AIPlayer(Player):
             blocked_score *= 2  # emphasize blocking opponent moves     
 
         return (piece_score * 15) + (mill_score * 15) + (potential_score * 7) + (mobility_score * 3) + \
-       (blocked_score * 2) + (pos_score * 1) + (double_mill_score * 8) + (threatened_score * 4)
+       (blocked_score * 2) + (pos_score * 1) + (double_mill_score * 12) + (threatened_score * 6)
     
     def simulate_move(self, board_obj, pos, player_num):
         """Simulate placing a piece at a position and return old board state."""
@@ -232,9 +232,14 @@ class AIPlayer(Player):
     def get_adaptive_depth(self, board_obj):
         """Return search depth based on board size and remaining empty slots."""
         empty_pos = sum(1 for pos in range(1, 25) if board_obj.board[pos - 1] not in {"W", "B"})
-        if empty_pos >= 15: return 4
-        if empty_pos >= 10: return 5
-        return 6
+        
+        # Check if human has any double mill setup forming
+        human_double_mills = self.count_double_mills(board_obj, "W")
+        bonus = 1 if human_double_mills > 0 else 0  # search deeper if threat exists
+        
+        if empty_pos >= 15: return 4 + bonus
+        if empty_pos >= 10: return 5 + bonus
+        return 6 + bonus
 
     def minimax(self, board_obj, depth, is_maximizing, alpha, beta, phase, pieces_placed):
         """Full Implementation of Minimax Algorithm which gives Best Move."""
@@ -412,13 +417,12 @@ class AIPlayer(Player):
             if Mill_Logic.can_form_mill("W", board_obj, opp_pos): # check mill formation
                 threatening_positions.append(opp_pos)
             board_obj.board[opp_pos - 1] = opp_pos # restore (mill is formed or not)
-
+        # If AI can choose end_pos that is in threatening list
         for start_pos, end_pos in ai_moves:
             if end_pos in threatening_positions:
                 print("AI is blocking opponent mill!")
                 return start_pos, end_pos        
         
-
         # Fallback to Minimax evaluation
         for start_pos, end_pos in ai_moves:
             old_state = self.simulate_move_phase_2_3(board_obj, start_pos, end_pos, player_num, opp_symbol="W")
